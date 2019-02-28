@@ -20,6 +20,8 @@ node *append(node *ptr)
         new->next[i] = NULL;
     }
 
+    strcpy(new->name, "");
+
     // Checks whether the given pointer is NULL or not
     if (ptr == NULL)
     {
@@ -32,6 +34,53 @@ node *append(node *ptr)
     }
 }
 
+node *delete(node *ptr, char date[4], int i)
+{
+    
+    // deletes a member of trie
+    node *tmp = ptr;
+    int place = date[i] - 48;
+    
+    if (ptr == NULL)
+    {
+        return NULL;
+    }
+
+    // checks if the given pointer is NULL
+    if (tmp->next[place] == NULL)
+    {
+        return NULL;
+    }
+
+    // checks if the requested data is reached
+    if (i == 3)
+    {
+        free(tmp->next[place]);
+        tmp->next[place] = NULL;
+    }
+    else
+    {
+        tmp->next[place] = delete(tmp->next[place], date, i + 1);
+    }
+
+    if (tmp->next[place] == NULL)
+    {
+        for (int j = 0; j < 10; j++)
+        {
+            if (tmp->next[j] != NULL)
+            {
+                return tmp;
+            }
+        }
+        free(tmp);
+        return NULL;
+    }
+
+    return tmp;
+    
+
+}
+
 int main(void)
 {
     char word[40];
@@ -40,12 +89,11 @@ int main(void)
     trie = append(trie);
     node *tmp = trie;
 
-    printf("Trie V 0.01\n");
+    printf("Trie\n");
     printf("Please enter the name of person and year of birth in four digits(type \"end\" to finish input)\n");
 
     while (1)
     {
-        printf("%i\n", sizeof(node));
         printf("Word: ");
         scanf("%s", word);
         if (strcmp(word, "end") == 0)
@@ -90,6 +138,18 @@ int main(void)
         strcpy(tmp->name, word);
     }
 
+    printf("Please enter the date you want to delete!\n");
+    while (1)
+    {
+        printf("Date: ") ;
+        scanf("%s", date);
+        if (strcmp(date,"end") == 0)
+        {
+            break;
+        }
+        trie = delete(trie, date, 0);
+    }
+
     printf("Now enter the Date to search(type \"end\" to finish search)\n");
 
     while (1)
@@ -121,20 +181,38 @@ int main(void)
             break;
         }
 
+        // searches and prints the result
         tmp = trie;
         char result[40];
+        
+        // checks if the pointer is NULL
+        if (tmp == NULL)
+        {
+            printf("Not found!\n");
+            continue;
+        }
+
         for (int i = 0; i < 4; i++)
         {
             int place = date[i] - 48;
             if (tmp->next[place] == NULL)
             {
-                strcpy(result, "Not found!");
+                printf("Not found!\n");
                 break;
             }
             tmp = tmp->next[place];
         }
-        
-        printf("Result: %s\n", result);
+
+        if (tmp->name == NULL)
+        {
+            printf("Not found!\n");
+            continue;
+        }
+        else
+        {
+            strcpy(result, tmp->name);
+            printf("Result: %s\n", result);
+        }
 
     }
 
